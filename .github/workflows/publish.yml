@@ -1,0 +1,31 @@
+name: Publish @sourcya/loog on JSR
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Type check
+        run: deno check src/mod.ts src/hono/mod.ts src/oak/mod.ts src/fresh/mod.ts
+
+      - name: Run tests
+        run: deno test --allow-read --allow-env --allow-net
+
+      - name: Publish to JSR
+        run: npx jsr publish
